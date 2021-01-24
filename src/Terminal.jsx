@@ -167,11 +167,11 @@ export default class Terminal extends Component {
           )
         } else {
           const cmd = this.state.commands[command]
-          const res = await cmd.fn(...args)
+          if (cmd.raw) await cmd.fn(rawInput)
+          const res = await cmd.raw ? cmd.fn(rawInput) : cmd.fn(...args)
 
           this.pushToStdout(res)
           commandResult.result = res
-          if (cmd.raw) await cmd.fn(rawInput)
           if (cmd.explicitExec) await cmd.fn(...args)
         }
       }
