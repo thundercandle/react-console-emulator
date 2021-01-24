@@ -9,6 +9,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack-dev-server",
     "build": "cross-env NODE_ENV=production webpack -p",
+    "watch": "watch 'npm run compile' ./src",
     "build-clean": "cross-env NODE_ENV=production webpack -p -c",
     "compile": "babel src --out-dir dist",
     "lint": "eslint .",
@@ -95,7 +96,8 @@
     "prop-types": "^15.7.2",
     "react-fast-compare": "^3.2.0",
     "react-inner-html": "^1.0.1",
-    "react-innertext": "^1.1.5"
+    "react-innertext": "^1.1.5",
+    "watch": "^1.0.2"
   },
   "peerDependencies": {
     "react": "^16.3.0",
