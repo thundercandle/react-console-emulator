@@ -157,7 +157,6 @@ export default class Terminal extends Component {
         commandResult.command = rawCommand
         commandResult.args = args
 
-        console.log('calling command exists')
         const { exists, command } = commandExists(this.state.commands, rawCommand, this.props.ignoreCommandCase)
 
         if (!exists) {

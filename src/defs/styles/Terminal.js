@@ -7,14 +7,14 @@ export default {
     borderRadius: '5px',
     overflow: 'auto',
     cursor: 'text',
-    backgroundColor: '#212121',
+    backgroundColor: 'black',
     backgroundSize: 'cover'
   },
   content: {
     padding: '20px',
     height: '100%',
     fontSize: '15px',
-    color: '#FFFFFF',
+    color: 'rgb(0, 122, 223)',
     fontFamily: 'monospace'
   },
   inputArea: {
@@ -23,11 +23,11 @@ export default {
   },
   promptLabel: {
     paddingTop: '3px',
-    color: '#EE9C34'
+    color: 'rgb(0, 122, 223)'
   },
   inputText: {
-    fontSize: '15px',
-    color: '#F0BF81',
+    fontSize: '16px',
+    color: 'rgb(0, 122, 223)',
     fontFamily: 'monospace'
   },
   input: {

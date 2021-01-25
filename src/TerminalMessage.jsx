@@ -16,10 +16,7 @@ export default class TerminalMessage extends Component {
     }
 
     if (typeof content === 'string') {
-      console.log('splitting')
       const lines = content.split('<br>')
-
-      console.log('lines', lines)
 
       return lines.map((line, i, arr) => {
         return this.props.dangerMode
