@@ -15,6 +15,19 @@ export default class TerminalMessage extends Component {
       message: defaults(style, sourceStyles)
     }
 
+    if (typeof content === 'string') {
+      console.log('splitting')
+      const lines = content.split('<br>')
+
+      console.log('lines', lines)
+
+      return lines.map((line, i, arr) => {
+        return this.props.dangerMode
+          ? <div className={className} style={styles.message} {...html(line)}/>
+          : <div className={className} style={styles.message}>{line}{i < arr.length - 1 && <br/>}</div>
+      })
+    }
+
     return this.props.dangerMode
       ? <div className={className} style={styles.message} {...html(content)}/>
       : <div className={className} style={styles.message}>{content}</div>

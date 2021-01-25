@@ -234,7 +234,7 @@ export default class Terminal extends Component {
         ref={this.terminalRoot}
         name='react-console-emulator'
         className={this.props.className}
-        style={styles.container}
+        style={{...styles.container, borderRadius: 0}}
         onClick={this.focusTerminal}
       >
         {/* Content */}
