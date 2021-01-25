@@ -266,6 +266,7 @@ export default class Terminal extends Component {
               style={styles.input}
               onKeyDown={this.handleInput}
               type='text'
+              autoFocus
               autoComplete='off'
               disabled={this.props.disabled || (this.props.disableOnProcess && /* istanbul ignore next: Covered by interactivity tests */ this.state.processing)}
             />
