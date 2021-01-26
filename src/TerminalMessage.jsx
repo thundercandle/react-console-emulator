@@ -22,7 +22,7 @@ export default class TerminalMessage extends Component {
       return lines.map((line, i, arr) => {
         return this.props.dangerMode
           ? <div className={className} style={styles.message} {...html(line)} key={line[0] + i}/>
-          : <div className={className} style={styles.message}>{line}<br/></div>
+          : <div className={className} style={styles.message}>{line}{i < arr.length && <br/>}</div>
       })
     }
 

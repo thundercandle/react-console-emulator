@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import defaults from 'defaults'
 import isEqual from 'react-fast-compare'
+import { Scrollbars } from 'react-custom-scrollbars'
 
 // Components
 import TerminalMessage from './TerminalMessage'
@@ -33,9 +34,10 @@ export default class Terminal extends Component {
 
     this.terminalRoot = React.createRef()
     this.terminalInput = React.createRef()
+    this.scrollbar = React.createRef()
   }
 
-  static propTypes = types
+  static propTypes = types;
 
   /* istanbul ignore next: Covered by interactivity tests */
   focusTerminal = () => {
@@ -43,29 +45,41 @@ export default class Terminal extends Component {
     const isTextSelected = window.getSelection().type === 'Range'
     // Only focus if input is there (Goes away for read-only terminals)
     if (!isTextSelected) this.terminalInput.current.focus()
-  }
+  };
 
   /* istanbul ignore next: Covered by interactivity tests */
   scrollToBottom = () => {
     const rootNode = this.terminalRoot.current
 
     // This may look ridiculous, but it is necessary to decouple execution for just a millisecond in order to scroll all the way
-    setTimeout(() => { rootNode.scrollTop = rootNode.scrollHeight }, 1)
-  }
+    setTimeout(() => {
+      console.log(this.scrollbar)
+      this.scrollbar.current.scrollToBottom()
+      rootNode.scrollTop = rootNode.scrollHeight
+    }, 1)
+  };
 
   validateCommands = () => {
     const { commands, noDefaults, ignoreCommandCase } = this.props
-    const validCommands = validateCommands(commands, this.showHelp, this.clearStdout, { noDefaults, ignoreCommandCase })
+    const validCommands = validateCommands(
+      commands,
+      this.showHelp,
+      this.clearStdout,
+      { noDefaults, ignoreCommandCase }
+    )
     this.setState({ commands: validCommands })
-  }
+  };
 
   showWelcomeMessage = () => {
     const msg = this.props.welcomeMessage
 
-    if (typeof msg === 'boolean') this.pushToStdout('Welcome to the React terminal! Type \'help\' to get a list of commands.')
-    else if (Array.isArray(msg)) msg.map(item => this.pushToStdout(item))
+    if (typeof msg === 'boolean') {
+      this.pushToStdout(
+        "Welcome to the React terminal! Type 'help' to get a list of commands."
+      )
+    } else if (Array.isArray(msg)) msg.map((item) => this.pushToStdout(item))
     else this.pushToStdout(msg)
-  }
+  };
 
   /* istanbul ignore next: Covered by interactivity tests */
   showHelp = () => {
@@ -77,7 +91,7 @@ export default class Terminal extends Component {
 
       this.pushToStdout(`${c} - ${cmdObj.description}${usage}`)
     }
-  }
+  };
 
   /**
    * @param {String} message
@@ -96,56 +110,76 @@ export default class Terminal extends Component {
     /* istanbul ignore next: Covered by interactivity tests */
     if (options?.rawInput) this.pushToHistory(options.rawInput)
     this.setState({ stdout: stdout })
-  }
+  };
 
   /**
    * @param {String} rawInput Raw command input from the terminal
    */
   /* istanbul ignore next: Covered by interactivity tests */
-  pushToHistory = rawInput => {
+  pushToHistory = (rawInput) => {
     const { history } = this.state
     history.push(rawInput)
     this.setState({ history: history, historyPosition: null })
-  }
+  };
 
   getStdout = () => {
     // Parse EOL if it isn't disabled
-    const stdout = !this.props.noNewlineParsing ? parseEOL(this.state.stdout) : this.state.stdout
+    const stdout = !this.props.noNewlineParsing
+      ? parseEOL(this.state.stdout)
+      : this.state.stdout
 
     return stdout.map((line, i) => {
-      return <TerminalMessage
-        key={i}
-        content={line.message}
-        dangerMode={this.props.dangerMode}
-        className={!line.isEcho ? this.props.messageClassName : /* istanbul ignore next: Covered by interactivity tests */ undefined}
-        style={!line.isEcho ? this.props.messageStyle : /* istanbul ignore next: Covered by interactivity tests */ undefined}
-      />
+      return (
+        <TerminalMessage
+          key={i}
+          content={line.message}
+          dangerMode={this.props.dangerMode}
+          className={
+            !line.isEcho
+              ? this.props.messageClassName
+              : /* istanbul ignore next: Covered by interactivity tests */ undefined
+          }
+          style={
+            !line.isEcho
+              ? this.props.messageStyle
+              : /* istanbul ignore next: Covered by interactivity tests */ undefined
+          }
+        />
+      )
     })
-  }
+  };
 
   /* istanbul ignore next: Covered by interactivity tests */
   clearStdout = () => {
     this.setState({ stdout: [] })
-  }
+  };
 
   /* istanbul ignore next: Covered by interactivity tests */
   clearInput = () => {
     this.setState({ historyPosition: null })
     this.terminalInput.current.value = ''
-  }
+  };
 
   /* istanbul ignore next: Covered by interactivity tests */
   processCommand = () => {
     this.setState({ processing: true }, async () => {
       // Initialise command result object
-      const commandResult = { command: null, args: [], rawInput: null, result: null }
+      const commandResult = {
+        command: null,
+        args: [],
+        rawInput: null,
+        result: null
+      }
       const rawInput = this.terminalInput.current.value
 
       if (!this.props.noHistory) this.pushToHistory(rawInput)
 
       if (!this.props.noEchoBack) {
         // Mimic native terminal by echoing command back
-        this.pushToStdout(constructEcho(this.props.promptLabel || '$', rawInput, this.props), { isEcho: true })
+        this.pushToStdout(
+          constructEcho(this.props.promptLabel || '$', rawInput, this.props),
+          { isEcho: true }
+        )
       }
 
       if (rawInput) {
@@ -157,17 +191,22 @@ export default class Terminal extends Component {
         commandResult.command = rawCommand
         commandResult.args = args
 
-        const { exists, command } = commandExists(this.state.commands, rawCommand, this.props.ignoreCommandCase)
+        const { exists, command } = commandExists(
+          this.state.commands,
+          rawCommand,
+          this.props.ignoreCommandCase
+        )
 
         if (!exists) {
-          this.pushToStdout(this.props.errorText
-            ? this.props.errorText.replace(/\[command\]/gi, command)
-            : `Command '${rawCommand}' not found!`
+          this.pushToStdout(
+            this.props.errorText
+              ? this.props.errorText.replace(/\[command\]/gi, command)
+              : `Command '${rawCommand}' not found!`
           )
         } else {
           const cmd = this.state.commands[command]
           if (cmd.raw) await cmd.fn(rawInput)
-          const res = await cmd.raw ? cmd.fn(rawInput) : cmd.fn(...args)
+          const res = (await cmd.raw) ? cmd.fn(rawInput) : cmd.fn(...args)
 
           this.pushToStdout(res)
           commandResult.result = res
@@ -178,13 +217,13 @@ export default class Terminal extends Component {
       this.setState({ processing: false }, () => {
         this.clearInput()
         if (!this.props.noAutoScroll) this.scrollToBottom()
-        if (this.props.commandCallback) this.props.commandCallback(commandResult)
+        if (this.props.commandCallback) { this.props.commandCallback(commandResult) }
       })
     })
-  }
+  };
 
   /* istanbul ignore next: Covered by interactivity tests */
-  scrollHistory = direction => {
+  scrollHistory = (direction) => {
     const { history, historyPosition, previousHistoryPosition } = this.state
 
     const toUpdate = scrollHistory(direction, {
@@ -196,20 +235,26 @@ export default class Terminal extends Component {
 
     // Only update if there is something to update
     if (toUpdate) this.setState(toUpdate)
-  }
+  };
 
   /* istanbul ignore next: Covered by interactivity tests */
-  handleInput = event => {
+  handleInput = (event) => {
     switch (event.key) {
-      case 'Enter': this.processCommand(); break
-      case 'ArrowUp': this.scrollHistory('up'); break
-      case 'ArrowDown': this.scrollHistory('down'); break
+      case 'Enter':
+        this.processCommand()
+        break
+      case 'ArrowUp':
+        this.scrollHistory('up')
+        break
+      case 'ArrowDown':
+        this.scrollHistory('down')
+        break
     }
-  }
+  };
 
   componentDidUpdate (prevProps) {
     // If there was a change in commands, re-validate
-    if (!isEqual(prevProps.commands, this.props.commands)) this.validateCommands()
+    if (!isEqual(prevProps.commands, this.props.commands)) { this.validateCommands() }
   }
 
   componentDidMount () {
@@ -219,13 +264,26 @@ export default class Terminal extends Component {
     if (this.props.autoFocus) this.focusTerminal()
   }
 
+  renderThumb ({ style, ...props }) {
+    const thumbStyle = {
+      backgroundColor: '#060606'
+    }
+    return <div style={{ ...style, ...thumbStyle }} {...props} />
+  }
+
   render () {
     const styles = {
       container: defaults(this.props.style, sourceStyles.container),
       content: defaults(this.props.contentStyle, sourceStyles.content),
       inputArea: defaults(this.props.inputAreaStyle, sourceStyles.inputArea),
-      promptLabel: defaults(this.props.promptLabelStyle, sourceStyles.promptLabel),
-      input: defaults({ ...this.props.inputStyle, ...this.props.inputTextStyle }, { ...sourceStyles.input, ...sourceStyles.inputText })
+      promptLabel: defaults(
+        this.props.promptLabelStyle,
+        sourceStyles.promptLabel
+      ),
+      input: defaults(
+        { ...this.props.inputStyle, ...this.props.inputTextStyle },
+        { ...sourceStyles.input, ...sourceStyles.inputText }
+      )
     }
 
     return (
@@ -233,45 +291,56 @@ export default class Terminal extends Component {
         ref={this.terminalRoot}
         name='react-console-emulator'
         className={this.props.className}
-        style={{...styles.container, borderRadius: 0}}
+        style={{ ...styles.container, borderRadius: 0 }}
         onClick={this.focusTerminal}
       >
-        {/* Content */}
-        <div
-          name='react-console-emulator__content'
-          className={this.props.contentClassName}
-          style={styles.content}
-        >
-          {/* Stdout */}
-          {this.getStdout()}
-          {/* Input area */}
+        <Scrollbars renderThumbVertical={this.renderThumb} ref={this.scrollbar}>
+          {/* Content */}
           <div
-            name='react-console-emulator__inputArea'
-            className={this.props.inputAreaClassName}
-            style={shouldPromptBeVisible(this.state, this.props) ? styles.inputArea : { display: 'none' }}
+            name='react-console-emulator__content'
+            className={this.props.contentClassName}
+            style={styles.content}
           >
-            {/* Prompt label */}
-            <span
-              name='react-console-emulator__promptLabel'
-              className={this.props.promptLabelClassName}
-              style={styles.promptLabel}
+            {/* Stdout */}
+            {this.getStdout()}
+            {/* Input area */}
+            <div
+              name='react-console-emulator__inputArea'
+              className={this.props.inputAreaClassName}
+              style={
+                shouldPromptBeVisible(this.state, this.props)
+                  ? styles.inputArea
+                  : { display: 'none' }
+              }
             >
-              {this.props.promptLabel || '$'}
-            </span>
-            {/* Input */}
-            <input
-              ref={this.terminalInput}
-              name='react-console-emulator__input'
-              className={this.props.inputClassName}
-              style={styles.input}
-              onKeyDown={this.handleInput}
-              type='text'
-              autoFocus
-              autoComplete='off'
-              disabled={this.props.disabled || (this.props.disableOnProcess && /* istanbul ignore next: Covered by interactivity tests */ this.state.processing)}
-            />
+              {/* Prompt label */}
+              <span
+                name='react-console-emulator__promptLabel'
+                className={this.props.promptLabelClassName}
+                style={styles.promptLabel}
+              >
+                {this.props.promptLabel || '$'}
+              </span>
+              {/* Input */}
+              <input
+                ref={this.terminalInput}
+                name='react-console-emulator__input'
+                className={this.props.inputClassName}
+                style={styles.input}
+                onKeyDown={this.handleInput}
+                type='text'
+                autoFocus
+                autoComplete='off'
+                disabled={
+                  this.props.disabled ||
+                  (this.props.disableOnProcess &&
+                  /* istanbul ignore next: Covered by interactivity tests */ this
+                    .state.processing)
+                }
+              />
+            </div>
           </div>
-        </div>
+        </Scrollbars>
       </div>
     )
   }
