@@ -19,11 +19,14 @@ export default class TerminalMessage extends Component {
       // this isnt working any more if I use \n in the code
       const lines = content.split('\n')
 
-      return lines.map((line, i, arr) => {
-        return this.props.dangerMode
-          ? <div className={className} style={styles.message} {...html(line)} key={line[0] + i}/>
-          : <div className={className} style={styles.message}>{line}{i < arr.length && <br/>}</div>
-      })
+      return lines
+      // this is a fix for a very weird bug
+        .filter(line => !line.match('&gt;'))
+        .map((line, i, arr) => {
+          return this.props.dangerMode
+            ? <div className={className} style={styles.message} {...html(line)} key={line[0] + i}/>
+            : <div className={className} style={styles.message}>{line}{i < arr.length && <br/>}</div>
+        })
     }
 
     return this.props.dangerMode

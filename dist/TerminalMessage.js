@@ -72,7 +72,10 @@ var TerminalMessage = /*#__PURE__*/function (_Component) {
       if (typeof content === 'string') {
         // this isnt working any more if I use \n in the code
         var lines = content.split('\n');
-        return lines.map(function (line, i, arr) {
+        return lines // this is a fix for a very weird bug
+        .filter(function (line) {
+          return !line.match('&gt;');
+        }).map(function (line, i, arr) {
           return _this.props.dangerMode ? /*#__PURE__*/_react["default"].createElement("div", (0, _extends2["default"])({
             className: className,
             style: styles.message
